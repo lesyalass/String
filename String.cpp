@@ -37,14 +37,9 @@ int String::findFirstOf(char c)
 
 char String::operator[](int index)
 {
-	if (index >= 0 && index < size)
-	{
-		return data[index];
-	}
-	else
-	{
-		return '\0';
-	}
+	assert(index >= 0 && index < size && "index out of range");
+	return data[index];
+	
 }
 
 String String::operator+(String s)
@@ -52,12 +47,12 @@ String String::operator+(String s)
 	String a = String();
 	if (a.memorySize <= this->length() + s.length() + 1)
 	{
-		memorySize = this->length() + s.length() + 1;
+		a.memorySize = (this->length() + s.length() + 1)*2;
 		delete[] a.data;
-		a.data = new char[memorySize];
+		a.data = new char[a.memorySize];
 	}
-	strcpy_s(a.data, a.memorySize, this->data);
-	strcpy_s(a.data + this->length(), a.memorySize - this->length(), s.data);
+	strcpy(a.data, this->data);
+	strcpy(a.data + this->length(), s.data);
 	return a;
 }
 
@@ -71,14 +66,18 @@ String* String::split(int index)
 	}
 	if (s1.memorySize < index + 1)
 	{
-		s1.memorySize = index + 1;
+		s1.memorySize = (index + 1)*2;
+		delete[] s1.data;	
+		s1.data = new char[s1.memorySize];
 	}
 	if (s2.memorySize < this->length() - index - 1)
 	{
-		s2.memorySize = this->length() - index - 1;
+		s2.memorySize = (this->length() - index - 1)*2;
+		delete[] s2.data;
+		s2.data = new char[s2.memorySize];
 	}
-	strncpy_s(s1.data, s1.memorySize, this->data, index);
-	strcpy_s (s2.data, s2.memorySize, this->data + index + 1);
+	strncpy(s1.data, this->data, index);
+	strcpy(s2.data, this->data + index + 1);
 	String* result = new String[2];
 	result[0] = s1;
 	result[1] = s2;
@@ -105,10 +104,10 @@ String::String(const char* input)
 	size = strlen(input);
 	if (memorySize <= size)
 	{
-		memorySize = size;
+		memorySize = size*2;
 	}
 	data = new char[memorySize];
-	strcpy_s(data, memorySize, input);
+	strcpy(data, input);
 }
 
 String::String()
